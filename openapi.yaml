@@ -1,0 +1,111 @@
+openapi: 3.0.4
+info:
+  title: Strapi
+  description: This is the API for Prenda's Strapi CMS server.  It is used to save activities created by Prenda's GPT.
+  version: 1.0.0
+servers:
+  - url: https://974fddmzi1.execute-api.eu-west-3.amazonaws.com/Prod/
+paths:
+  /activity:
+    post:
+      tags:
+        - Activity
+      summary: Add a new activity to Strapi
+      operationId: addActivity
+      requestBody:
+        description: Add a new activity to Strapi
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Activity'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Success'
+        '400':
+          description: Invalid input
+        '422':
+          description: Validation exception
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+components:
+  schemas:
+    Activity:
+      required:
+        - title
+        - step1
+        - step2
+        - step3
+        - step4
+        - description
+        - focus
+        - topic
+        - format
+        - learning_mode
+        - subject
+        - levels
+      type: object
+      properties:
+        title:
+          type: string
+          example: Create Your Own Cartoon Character That Moves!
+        step1:
+          type: string
+          example: In this Create Project, you’ll explore cartooning and animation basics by designing a fun character and showing how it moves using simple animation techniques.
+        step2:
+          type: string
+          example: Time to dream up your animated world!
+        step3:
+          type: string
+          example: Now, bring it to life!
+        step4:
+          type: string
+          example: Take a minute to review how your Project went.
+        description:
+          type: string
+          example: Can your drawing come to life? Learn the secrets of cartooning and animation, then create a character that looks like it’s ready to jump off the page!
+        focus:
+          type: string
+          example: Visual
+        topic:
+          type: string
+          example: Drawing
+        format:
+          type: string
+          example: Project
+        learning_mode:
+          type: string
+          example: Create
+        subject:
+          type: string
+          example: Arts
+        levels:
+          type: array
+          items:
+            type: integer
+          example: [3,4,5]
+    Success:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+      required:
+        - code
+        - message

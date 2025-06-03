@@ -64,14 +64,12 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
         const subjects = (await getAll('subjects', strapiBearerToken)).data;
         const levels = (await getAll('levels', strapiBearerToken)).data;
 
-        activity.focus = foci.find((focus) => activity.focus === focus.name).documentId;
-        activity.topic = topics.find((topic) => activity.topic === topic.name).documentId;
-        activity.format = formats.find((format) => activity.format === format.name).documentId;
-        activity.learning_mode = learningModes.find(
-            (learningMode) => activity.learning_mode === learningMode.name,
-        ).documentId;
-        activity.subject = subjects.find((subject) => activity.subject === subject.name).documentId;
-        activity.levels = activity.levels.map((level) => levels.find((entry) => level == entry.name).documentId);
+        activity.focus = findDocumentId(activity.focus, foci);
+        activity.topic = findDocumentId(activity.topic, topics);
+        activity.format = findDocumentId(activity.format, formats);
+        activity.learning_mode = findDocumentId(activity.learning_mode, learningModes);
+        activity.subject = findDocumentId(activity.subject, subjects);
+        activity.levels = activity.levels.map((level) => findDocumentId(level, levels));
         activity.step1 = fixRichText(activity.step1);
         activity.step2 = fixRichText(activity.step2);
         activity.step3 = fixRichText(activity.step3);
@@ -96,6 +94,14 @@ export const lambdaHandler = async (event: APIGatewayProxyEvent): Promise<APIGat
     }
 };
 
+function findDocumentId(value: string, relations: { name: string; documentId: string }[]) {
+    const relation = relations.find((relation) => relation.name === value);
+    if (!relation) {
+        throw new Error(`${value} not found in ${relations.map((relation) => relation.name).join(', ')}`);
+    }
+    return relation.documentId;
+}
+
 async function save(activity, strapiBearerToken: string) {
     const payload = { data: activity };
     console.log({ payload });
@@ -113,7 +119,7 @@ async function save(activity, strapiBearerToken: string) {
 }
 
 async function getAll(resource: string, strapiBearerToken: string) {
-    const strapiResponse = await fetch(`https://learn-content-api.fly.dev/api/${resource}?pagination[pageSize]=100`, {
+    const strapiResponse = await fetch(`https://learn-content-api.fly.dev/api/${resource}?pagination[pageSize]=250`, {
         headers: {
             authorization: `Bearer ${strapiBearerToken}`,
         },
